@@ -6,12 +6,10 @@ const cookieParser = require("cookie-parser");
 const {
   addNote,
   getNotes,
-  removeNote,
-  updateNote,
+
 } = require("./notes.controller");
 const { addUser, loginUser } = require("./users.controller");
 const auth = require("./middlewares/auth");
-const { error } = require("console");
 
 const port = 3000;
 const app = express();
@@ -38,10 +36,9 @@ app.get("/login", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const token = await loginUser(req.body.email, req.body.password);
-    console.log(token);
     res.cookie("token", token, { httpOnly: true });
 
-    res.redirect("/");
+    res.redirect("/table");
   } catch (e) {
     res.render("login", {
       title: "Express App",
@@ -83,13 +80,12 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-app.use(auth);
+
 
 app.get("/", async (req, res) => {
   res.render("index", {
     title: "Express App",
     notes: await getNotes(),
-    userEmail: req.user.email,
     created: false,
     error: false,
   });
@@ -115,7 +111,7 @@ app.post("/", async (req, res) => {
   }
 });
 
-
+app.use(auth);
 
 app.get("/table", async (req, res) => {
   res.render("table", {
